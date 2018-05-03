@@ -2,8 +2,7 @@
 
 This is a compact, portable (no dependencies) and extremely easy-to-use implementation of self-balancing binary search tree. This particular type of trees (so called AA-tree) is described here: https://en.wikipedia.org/wiki/AA_tree
 
-##Features:
-
+**Features:**
 1. You can use this module through `import` instruction or simply copy-paste the implementation into your source code, and be happy.
 2. While instantiating 'sbst' object you can specify your own comparison function or use default simple comparison.
 3. You can add values to tree one-by-one using function `add`, or fill it from some iterable object (function `addfrom`). Either initialization in constructor is possible.
@@ -16,4 +15,6 @@ This is a compact, portable (no dependencies) and extremely easy-to-use implemen
 7. If comparison function treats values as equal, they will be yielded by `forward_from` and `backward_from` generators in the insertion order.
 8. Do not store _None_ values into tree. Even if your comparison function can process them, you will not be able to search them because None value will be treated as 'not specified'.
 9. If mutable objects inserted into the tree are changed, their sequence in tree may become irrelevant. So after value mutation it is a good idea to remove it from tree and add again.
-10. Methods 'add' and 'remove' are not thread-safe. Be careful.
+10. Methods `add` and `remove` are not thread-safe. Be careful.
+
+Tutorial is included in source code.
