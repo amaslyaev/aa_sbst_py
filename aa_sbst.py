@@ -70,6 +70,9 @@ Little tutorial (and also doctest):
 ...     t1.add(-v)
 >>> print(*[v for v in t1.forward_from()]) # let's see the result
 -123 -67 -45 45 67 123
+>>> # Using 'stop' parameter of iterating functions
+>>> print(*[v for v in t1.forward_from(-100, stop=0)])
+-67 -45
 
 >>> # Using custom comparison
 >>> def my_cmp(v1, v2): # value[0] ascending then value[1] descending
@@ -430,7 +433,8 @@ class sbst():
         val - value to be removed
         allcopies - boolean - suggests remove all the exact copies of
           specified 'val'. """
-        self.root = self._delete(val, self.root, allcopies)
+        if val != None:
+            self.root = self._delete(val, self.root, allcopies)
     
     def _delete(self, val, node, allcopies):
         if node == None:
@@ -448,44 +452,49 @@ class sbst():
                 if node.left == None and node.right == None:
                     return None
                 elif node.left == None: # node.right exists
-                    L = node.right
-                    while L.left:
-                        L = L.left
-                    # try again!
-                    LV = L.getval()
-                    node.len = L.len
-                    node.val = L.val
-                    node.is_array = L.is_array
-                    L.len = 1
-                    L.val = LV
-                    L.is_array = False
-                    node.right = self._delete(LV, node.right, False)
-                else: # node.left exists
-                    # owerwriting current node data from in-order predecessor
-                    # and deleting that predecessor
-                    L = node.left
-                    while L.right:
-                        L = L.right
-                    LV = L.getval()
-                    node.len = L.len
-                    node.val = L.val
-                    node.is_array = L.is_array
-                    L.len = 1
-                    L.val = LV
-                    L.is_array = False
-                    node.left = self._delete(LV, node.left, False)
-                self._len += 1 # we just decreased _len twice
-                self._decrease_level(node)
-                node = self._skew(node)
-                node.right = self._skew(node.right)
-                if node.right:
-                    node.right.right = self._skew(node.right.right)
-                node = self._split(node)
-                node.right = self._split(node.right)
+                    NN = node.right
+                    while NN.left:
+                        NN = NN.left
+                    if NN != node.right:
+                        if NN.right:
+                            NN.right.parent = NN.parent
+                        NN.parent.left = NN.right
+                        RN = NN.parent
+                        while RN != node:
+                            self._decrease_level(RN)
+                            RN = RN.parent
+                        NN.right = node.right
+                        NN.right.parent = NN
+                    NN.parent = node.parent
+                    NN.level = node.level
+                    node.right = NN
+                    node = NN
+                else: # node.left exists and node.right maybe too
+                    PN = node.left
+                    while PN.right:
+                        PN = PN.right
+                    if PN != node.left:
+                        if PN.left:
+                            PN.left.parent = PN.parent
+                        PN.parent.right = PN.left
+                        RN = PN.parent
+                        while RN != node:
+                            self._decrease_level(RN)
+                            RN = RN.parent
+                        PN.left = node.left
+                        PN.left.parent = PN
+                    PN.parent = node.parent
+                    PN.level = node.level
+                    PN.right = node.right
+                    if PN.right:
+                        PN.right.parent = PN
+                    node.left = PN
+                    node = PN
+        self._decrease_level(node)
         return node
     
     def _decrease_level(self, node):
-        should_be = min(node.left.level if node.left else 0, \
+        should_be = max(node.left.level if node.left else 0, \
                         node.right.level if node.right else 0) + 1
         if should_be < node.level:
             node.level = should_be
