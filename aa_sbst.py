@@ -166,6 +166,28 @@ True
 >>> t5.add(mutable)    # to restore sequence
 >>> [v for v in t5.forward_from()]
 [[1], [3], [100]]
+
+>>> # 3 tests for renoving values while iterating
+>>> # 1: removing current value
+>>> t6 = aa_sbst.sbst(source=[1, 2, 3, 99, 100, 101])
+>>> for v in t6.forward_from(2):
+...     print(v, end=' ')
+...     t6.remove(v)
+2 3 99 100 101 
+>>> # 2: removing next value
+>>> t6 = aa_sbst.sbst(source=[1, 2, 3, 99, 100, 101])
+>>> for v in t6.forward_from(2):
+...     print(v, end=' ')
+...     t6.remove(t6.min(v, False))
+2 99 101 
+>>> # 3: removing previous value
+>>> t6 = aa_sbst.sbst(source=[1, 2, 3, 99, 100, 101])
+>>> for v in t6.forward_from(2):
+...     print(v, end=' ')
+...     t6.remove(t6.max(v, False))
+2 3 99 100 101 
+>>> [v for v in t6.forward_from()]
+[101]
 """
 
 # -------------- Start copy-paste from here --------------
@@ -180,12 +202,13 @@ def _sbst_simple_comparison(v1, v2):
 class _sbst_node():
     """ Represents tree node """
     
-    def __init__(self, val, parent):
+    def __init__(self, val, parent, direction=None):
         self.level = self.len = 1
         self.left = self.right = None
         self.val = val
         self.is_array = False
         self.parent = parent
+        self.direction = direction
     
     def getval(self):
         return self.val if not self.is_array else self.val[0]
@@ -250,9 +273,12 @@ class sbst():
             node.left = L.right
             if L.right:
                 L.right.parent = node
+                L.right.direction = 'L'
             L.right = node
             L.parent = node.parent
+            L.direction = node.direction
             node.parent = L
+            node.direction = 'R'
             return L
         else:
             return node
@@ -265,24 +291,27 @@ class sbst():
             node.right = R.left
             if R.left:
                 R.left.parent = node
+                R.left.direction = 'R'
             R.left = node
             R.parent = node.parent
+            R.direction = node.direction
             node.parent = R
+            node.direction = 'L'
             R.level += 1
             return R
         else:
             return node
     
-    def _insert_into_node(self, node, val, parent):
+    def _insert_into_node(self, node, val, parent, direction=None):
         if node == None:
             self._len += 1
-            return _sbst_node(val, parent)
+            return _sbst_node(val, parent, direction)
         else:
             cmp = self.comp_f(val, node.getval())
             if cmp < 0: # val < node.getval()
-                node.left = self._insert_into_node(node.left, val, node)
+                node.left = self._insert_into_node(node.left, val, node, 'L')
             elif cmp > 0: # val > node.getval()
-                node.right = self._insert_into_node(node.right, val, node)
+                node.right = self._insert_into_node(node.right, val, node, 'R')
             else: # val == node.getval()
                 self._len += 1
                 node.addval(val)
@@ -342,7 +371,7 @@ class sbst():
                     curr = curr.left
             else:
                 new_curr = curr.parent
-                while new_curr and new_curr.right == curr:
+                while new_curr and curr.direction == 'R':
                     curr = new_curr
                     new_curr = curr.parent
                 curr = new_curr
@@ -393,7 +422,7 @@ class sbst():
                     curr = curr.right
             else:
                 new_curr = curr.parent
-                while new_curr and new_curr.left == curr:
+                while new_curr and curr.direction == 'L':
                     curr = new_curr
                     new_curr = curr.parent
                 curr = new_curr
@@ -458,6 +487,7 @@ class sbst():
                     if NN != node.right:
                         if NN.right:
                             NN.right.parent = NN.parent
+                            NN.right.direction = 'L'
                         NN.parent.left = NN.right
                         RN = NN.parent
                         while RN != node:
@@ -466,6 +496,7 @@ class sbst():
                         NN.right = node.right
                         NN.right.parent = NN
                     NN.parent = node.parent
+                    NN.direction = node.direction
                     NN.level = node.level
                     node.right = NN
                     node = NN
@@ -476,6 +507,7 @@ class sbst():
                     if PN != node.left:
                         if PN.left:
                             PN.left.parent = PN.parent
+                            PN.left.direction = 'R'
                         PN.parent.right = PN.left
                         RN = PN.parent
                         while RN != node:
@@ -484,6 +516,7 @@ class sbst():
                         PN.left = node.left
                         PN.left.parent = PN
                     PN.parent = node.parent
+                    PN.direction = node.direction
                     PN.level = node.level
                     PN.right = node.right
                     if PN.right:
