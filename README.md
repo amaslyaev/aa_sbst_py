@@ -19,4 +19,4 @@ This is a compact, portable (no dependencies) and extremely easy-to-use implemen
 9. If mutable objects inserted into the tree are changed, their sequence in tree may become irrelevant. So after value mutation it is a good idea to remove it from tree and add again.
 10. Methods `add` and `remove` are not thread-safe. Be careful.
 
-Tutorial is included in the source code.
+Tutorial: [doc/tutorial.md](doc/tutorial.md)
