@@ -153,7 +153,7 @@ Little tutorial (and also doctest):
 >>> etalon == [v for v in t4.forward_from(0)]
 True
 
->>> # Will change stored value
+>>> # Test for changing stored value
 >>> t5 = aa_sbst.sbst()
 >>> t5.add([1])
 >>> mutable = [2] # value to change
@@ -188,6 +188,29 @@ True
 2 3 99 100 101 
 >>> [v for v in t6.forward_from()]
 [101]
+
+>>> # Using make_cmp_fn_by_key
+>>> import collections
+>>> t_empl = collections.namedtuple('employee', 'id, name, salary')
+>>> # Tree will be ordered by salary and then by name:
+>>> t7 = aa_sbst.sbst(make_cmp_fn_by_key(lambda v: (v.salary, v.name)))
+>>> t7.add(t_empl(1, 'John', 1000))
+>>> t7.add(t_empl(2, 'Alice', 1000))
+>>> t7.add(t_empl(3, 'Paul', 900))
+>>> t7.add(t_empl(4, 'Bob', 1100))
+>>> t7.add(t_empl(5, 'Celine', 1050))
+>>> print(*[v for v in t7.forward_from()], sep=chr(10))
+employee(id=3, name='Paul', salary=900)
+employee(id=2, name='Alice', salary=1000)
+employee(id=1, name='John', salary=1000)
+employee(id=5, name='Celine', salary=1050)
+employee(id=4, name='Bob', salary=1100)
+>>> print(*[v for v in t7.backward_from(t_empl(0, '-', 1000))], sep=chr(10))
+employee(id=3, name='Paul', salary=900)
+>>> print(*[v for v in t7.backward_from(t_empl(0, 'ZZZ', 1000))], sep=chr(10))
+employee(id=1, name='John', salary=1000)
+employee(id=2, name='Alice', salary=1000)
+employee(id=3, name='Paul', salary=900)
 """
 
 # -------------- Start copy-paste from here --------------
@@ -198,6 +221,10 @@ def _sbst_simple_comparison(v1, v2):
         return 0
     else:
         return -1 if v1 < v2 else 1
+
+def make_cmp_fn_by_key(key):
+    """ Takes a key extraction function and makes comparison function """
+    return lambda v1, v2: _sbst_simple_comparison(key(v1), key(v2))
 
 class _sbst_node():
     """ Represents tree node """
