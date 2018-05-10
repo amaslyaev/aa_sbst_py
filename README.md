@@ -1,6 +1,6 @@
 ## Pure Python implementation of self-balancing binary search tree (SBST)
 
-There is an implemenation of SBST in Standard Python Library, and I found it quite inconvenient and a little bit disappointing.
+There is no implemenation of SBST in Standard Python Library, and I found it quite inconvenient and a little bit disappointing.
 
 This is a compact, portable (no dependencies) and extremely easy-to-use implementation of self-balancing binary search tree. This particular type of trees (so called AA-tree) is described here: https://en.wikipedia.org/wiki/AA_tree
 
