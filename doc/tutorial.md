@@ -66,7 +66,7 @@ Result:
 ```
 -2 1 3 8 10 27 64 125
 ```
-We did not specified starting value so all the values are printed. Let specify started value, for example, 10:
+We did not specified starting value so all the values are printed. Let specify a starting value, for example, 10:
 ```
 print(*[v for v in my_tree.forward_from(10)])
 ```
@@ -74,7 +74,7 @@ Result:
 ```
 10 27 64 125
 ```
-Or 11:
+Or 11 (not present in the tree) for starting value:
 ```
 print(*[v for v in my_tree.forward_from(11)])
 ```
@@ -92,15 +92,14 @@ Result:
 ```
 To set upper limit for `forward_from`, use parameter `stop` and, if needed, `stop_incl`:
 ```
-If you need to excude starting value from the iteration, set `False` for parameter `inclusive`:
-```
 print(*[v for v in my_tree.forward_from(10, False, stop=100)])
 ```
 Result:
 ```
 27 64
 ```
-*Important:* Including/excluding options for starting and stopping values by default are *True for start* and *False for stop*. Like start and stop for `range` object.
+
+**Important:** Including/excluding options for starting and stopping values by default are *True for start* and *False for stop*. Like start and stop for `range` object.
 
 `backward_from` works like `forward_from`, but enumerates values backward from start to stop:
 ```
@@ -121,7 +120,8 @@ Result:
 -2 1 3 8 10 27 64 125
 -2 1 3 10 27 64 125
 ```
-*Important notice:* This implementation holds all the inserted duplicates:
+
+**Important notice:** This implementation holds all the inserted duplicates:
 ```
 print(*[v for v in my_tree.forward_from()])
 my_tree.add(10)
