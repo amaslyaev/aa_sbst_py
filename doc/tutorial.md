@@ -5,7 +5,7 @@
 There are three ways to embed this functionality into your project:
 1. Get this module by `pip install aa_sbst` and then import into your module by `import aa_sbst`.
 2. Directly download `aa_sbst.py` file and adopt it into your project.
-3. In some cases you might prefer simply copy-paste the implementation into your source code. Feel free doing this. Just find comments "# -------------- Start copy-paste from here" and "# -------------- Finish copy-paste here", and take the lines between them.
+3. In some cases you might prefer simply copy-paste the implementation into your source code. Feel free doing this. Just find comments "*# -------------- Start copy-paste from here*" and "*# -------------- Finish copy-paste here*", and take the lines between them.
 
 ## How to use
 
