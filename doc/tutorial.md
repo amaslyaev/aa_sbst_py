@@ -13,11 +13,11 @@ Actually, you do not need to bother about tree nodes. You simply create tree, an
 
 If you embedded this functionality using thw way 1 or 2 described above, first of all import this module:
 ```python
-import aa_sbst
+>>> import aa_sbst
 ```
 Then create the tree object:
 ```python
-my_tree = aa_sbst.sbst()
+>>> my_tree = aa_sbst.sbst()
 ```
 We just created uninitializes tree with default arranging function.
 
@@ -25,77 +25,53 @@ We just created uninitializes tree with default arranging function.
 
 Let's add some values:
 ```python
-my_tree.add(1)
-my_tree.add(3)
-my_tree.add(-2)
-my_tree.add(10)
+>>> my_tree.add(1)
+>>> my_tree.add(3)
+>>> my_tree.add(-2)
+>>> my_tree.add(10)
 ```
 Also you can add values from an iterable object:
 ```python
-my_tree.addfrom(i**3 for i in range(2, 6))
+>>> my_tree.addfrom(i**3 for i in range(2, 6))
 ```
 Now we are ready to look for values in the tree. Let's find maximal value that is not greater then, for example, 20:
 ```python
-my_tree.max(20)
-```
-Result:
-```
+>>> my_tree.max(20)
 10
 ```
 Lookin for the minimal value that is not less then 27:
 ```python
-my_tree.min(27)
-```
-Result:
-```
+>>> my_tree.min(27)
 27
 ```
 Lookin for the minimal value that is greater then 27 (`inclusive` parameter set to `False`):
 ```python
-my_tree.min(27, False)
-```
-Result:
-```
+>>> my_tree.min(27, False)
 64
 ```
 Methods `forward_from` and `backward_from` useful for getting sequences from the tree, and they can be used just for lookin at the values stored in the tree:
 ```python
-print(*[v for v in my_tree.forward_from()])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from()])
 -2 1 3 8 10 27 64 125
 ```
 We did not specified starting value so all the values are printed. Let specify a starting value, for example, 10:
 ```python
-print(*[v for v in my_tree.forward_from(10)])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from(10)])
 10 27 64 125
 ```
 Or 11 (not present in the tree) for starting value:
 ```python
-print(*[v for v in my_tree.forward_from(11)])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from(11)])
 27 64 125
 ```
 If you need to excude starting value from the iteration, set `False` for parameter `inclusive`:
 ```python
-print(*[v for v in my_tree.forward_from(10, False)])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from(10, False)])
 27 64 125
 ```
 To set upper limit for `forward_from`, use parameter `stop` and, if needed, `stop_incl`:
 ```python
-print(*[v for v in my_tree.forward_from(10, False, stop=100)])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from(10, False, stop=100)])
 27 64
 ```
 
@@ -103,33 +79,24 @@ Result:
 
 `backward_from` works like `forward_from`, but enumerates values backward from start to stop:
 ```python
-print(*[v for v in my_tree.backward_from(100, stop=10)])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.backward_from(100, stop=10)])
 64 27
 ```
 Removing values from the tree:
 ```python
-print(*[v for v in my_tree.forward_from()])
-my_tree.remove(8)
-print(*[v for v in my_tree.forward_from()])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from()])
 -2 1 3 8 10 27 64 125
+>>> my_tree.remove(8)
+>>> print(*[v for v in my_tree.forward_from()])
 -2 1 3 10 27 64 125
 ```
 
 **_Important notice:_** This implementation holds all the inserted duplicates:
 ```python
-print(*[v for v in my_tree.forward_from()])
-my_tree.add(10)
-print(*[v for v in my_tree.forward_from()])
-```
-Result:
-```
+>>> print(*[v for v in my_tree.forward_from()])
 -2 1 3 10 27 64 125
+>>> my_tree.add(10)
+>>> print(*[v for v in my_tree.forward_from()])
 -2 1 3 10 10 27 64 125
 ```
 
@@ -137,7 +104,7 @@ Result:
 
 By default tree arranges values in their "natural" order. If this behavior is not useful, you can define your own comparison function and specify it at the tree's instantiation:
 ```python
-def my_cmp_func(v1, v2):
+>>> def my_cmp_func(v1, v2):
     # Very strange order - natural order, but even numbers first
     if v1 % 2 < v2 % 2:
         return -1   # '-1' means 'v1 < v2'
@@ -147,33 +114,29 @@ def my_cmp_func(v1, v2):
         # If v1 and v2 are both even or both odd, use default comparison
         return aa_sbst._sbst_simple_comparison(v1, v2)
 
-# Create tree with non-default comparison:
-even_odd_tree = aa_sbst.sbst(my_cmp_func)
-# Populate tree from range [-5, 6):
-even_odd_tree.addfrom(range(-5, 6))
-# Let's take a look:
-print(*[v for v in even_odd_tree.forward_from()])
-```
-Result:
-```
+>>> # Create tree with non-default comparison:
+>>> even_odd_tree = aa_sbst.sbst(my_cmp_func)
+>>> # Populate tree from range [-5, 6):
+>>> even_odd_tree.addfrom(range(-5, 6))
+>>> # Let's take a look:
+>>> print(*[v for v in even_odd_tree.forward_from()])
 -4 -2 0 2 4 -5 -3 -1 1 3 5
 ```
 If your tree is an index for some objects, you might prefer to simply tell what the fields should be used for comparison. The `make_cmp_fn_by_key` function privides this service.
 
 Let's create tree that holds 'employee' named tuples with fields 'id', 'name', and 'salary'. Data in tree will be arranged by salary and then by names:
 ```python
-import collections
-t_empl = collections.namedtuple('employee', 'id, name, salary')
-empl_idx = aa_sbst.sbst(aa_sbst.make_cmp_fn_by_key(lambda v: (v.salary, v.name)))
-empl_idx.add(t_empl(1, 'John', 1000))
-empl_idx.add(t_empl(2, 'Alice', 1000))
-empl_idx.add(t_empl(3, 'Paul', 900))
-empl_idx.add(t_empl(4, 'Bob', 1100))
-empl_idx.add(t_empl(5, 'Celine', 1050))
-# Let's see:
-print(*[v for v in empl_idx.forward_from()], sep='\n')
+>>> import collections
+>>> t_empl = collections.namedtuple('employee', 'id, name, salary')
+>>> empl_idx = aa_sbst.sbst(aa_sbst.make_cmp_fn_by_key(lambda v: (v.salary, v.name)))
+>>> empl_idx.add(t_empl(1, 'John', 1000))
+>>> empl_idx.add(t_empl(2, 'Alice', 1000))
+>>> empl_idx.add(t_empl(3, 'Paul', 900))
+>>> empl_idx.add(t_empl(4, 'Bob', 1100))
+>>> empl_idx.add(t_empl(5, 'Celine', 1050))
+>>> # Let's see:
+>>> print(*[v for v in empl_idx.forward_from()], sep='\n')
 ```
-Result:
 ```
 employee(id=3, name='Paul', salary=900)
 employee(id=2, name='Alice', salary=1000)
@@ -183,9 +146,8 @@ employee(id=4, name='Bob', salary=1100)
 ```
 Let's find all the records with salary >= 1001:
 ```python
-print(*[v for v in empl_idx.forward_from(t_empl(1, '', 1001))], sep='\n')
+>>> print(*[v for v in empl_idx.forward_from(t_empl(1, '', 1001))], sep='\n')
 ```
-Result:
 ```
 employee(id=5, name='Celine', salary=1050)
 employee(id=4, name='Bob', salary=1100)
@@ -195,7 +157,7 @@ employee(id=4, name='Bob', salary=1100)
 
 We will get tree-like representation of 'empl_idx' from previous example:
 ```python
-for n in empl_idx.nodes_list():
+>>> for n in empl_idx.nodes_list():
     lvl = 0
     c = n
     while c:
@@ -204,7 +166,6 @@ for n in empl_idx.nodes_list():
     print('    '*(lvl-1) + ('/' if n.direction == 'L' \
            else ('\\' if n.direction == 'R' else '')) + str(n.getval()))
 ```
-Result:
 ```
     /employee(id=3, name='Paul', salary=900)
 employee(id=2, name='Alice', salary=1000)
